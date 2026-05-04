@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: unt-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: unt_gestion
+    ports:
+      - "5434:5432"
+    volumes:
+      - ./docs/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: .
+      dockerfile: ./apps/api/Dockerfile
+    container_name: unt-api
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: postgresql://user:password@db:5432/unt_gestion
+      PORT: 3001
+    depends_on:
+      - db
+
+  web:
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile
+    container_name: unt-web
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3001/trpc
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:

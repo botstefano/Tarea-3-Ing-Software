@@ -1,0 +1,146 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RolUsuario {
+  ADMIN
+  COORDINADOR
+  ASESOR
+  ESTUDIANTE
+  EMPRESA
+}
+
+enum EstadoPractica {
+  PENDIENTE
+  EN_CURSO
+  FINALIZADA
+  REPROBADA
+}
+
+enum EstadoTesis {
+  PROYECTO
+  EJECUCION
+  SUSTENTACION
+  APROBADA
+}
+
+enum TipoInforme {
+  PRACTICA
+  TESIS_AVANCE
+  TESIS_FINAL
+}
+
+model Usuario {
+  id             String      @id @default(uuid())
+  nombre         String
+  email          String      @unique
+  password       String
+  rol            RolUsuario
+  fechaCreacion  DateTime    @default(now()) @map("fecha_creacion")
+  estudiante     Estudiante?
+  docente        Docente?
+
+  @@map("usuarios")
+}
+
+model Estudiante {
+  id        String    @id @default(uuid())
+  usuarioId String    @unique @map("usuario_id")
+  usuario   Usuario   @relation(fields: [usuarioId], references: [id])
+  codigo    String    @unique
+  facultad  String
+  escuela   String
+  ciclo     Int?
+  practicas Practica[]
+  tesis     Tesis[]
+
+  @@map("estudiantes")
+}
+
+model Docente {
+  id             String    @id @default(uuid())
+  usuarioId      String    @unique @map("usuario_id")
+  usuario        Usuario   @relation(fields: [usuarioId], references: [id])
+  especialidad   String?
+  departamento   String?
+  gradoAcademico String?   @map("grado_academico")
+  practicas      Practica[]
+  tesisAsesoradas Tesis[]   @relation("AsesorTesis")
+  juradoTesis    Tesis[]   @relation("JuradoTesis")
+
+  @@map("docentes")
+}
+
+model Empresa {
+  id              String    @id @default(uuid())
+  nombre          String
+  ruc             String    @unique
+  direccion       String?
+  representante   String?
+  convenioActivo  Boolean   @default(false) @map("convenio_activo")
+  fechaConvenio   DateTime? @map("fecha_convenio")
+  practicas       Practica[]
+
+  @@map("empresas")
+}
+
+model Practica {
+  id               String         @id @default(uuid())
+  estudianteId     String         @map("estudiante_id")
+  estudiante       Estudiante     @relation(fields: [estudianteId], references: [id])
+  empresaId        String         @map("empresa_id")
+  empresa          Empresa        @relation(fields: [empresaId], references: [id])
+  asesorId         String?        @map("asesor_id")
+  asesor           Docente?       @relation(fields: [asesorId], references: [id])
+  titulo           String
+  descripcion      String?
+  fechaInicio      DateTime       @map("fecha_inicio")
+  fechaFin         DateTime?      @map("fecha_fin")
+  estado           EstadoPractica @default(PENDIENTE)
+  horasAcumuladas  Int            @default(0) @map("horas_acumuladas")
+  calificacionFinal Float?        @map("calificacion_final")
+  fechaCreacion    DateTime       @default(now()) @map("fecha_creacion")
+  informes         Informe[]
+
+  @@map("practicas_preprofesionales")
+}
+
+model Tesis {
+  id               String      @id @default(uuid())
+  estudianteId     String      @map("estudiante_id")
+  estudiante       Estudiante  @relation(fields: [estudianteId], references: [id])
+  asesorId         String?     @map("asesor_id")
+  asesor           Docente?    @relation("AsesorTesis", fields: [asesorId], references: [id])
+  titulo           String
+  descripcion      String?
+  estado           EstadoTesis @default(PROYECTO)
+  fechaRegistro    DateTime    @default(now()) @map("fecha_registro")
+  fechaSustentacion DateTime?  @map("fecha_sustentacion")
+  notaFinal        Float?      @map("nota_final")
+  jurados          Docente[]   @relation("JuradoTesis")
+  informes         Informe[]
+
+  @@map("tesis")
+}
+
+model Informe {
+  id            String      @id @default(uuid())
+  practicaId    String?     @map("practica_id")
+  practica      Practica?   @relation(fields: [practicaId], references: [id])
+  tesisId       String?     @map("tesis_id")
+  tesis         Tesis?      @relation(fields: [tesisId], references: [id])
+  tipo          TipoInforme
+  titulo        String
+  contenido     String?
+  urlDocumento  String?     @map("url_documento")
+  fechaEntrega  DateTime    @default(now()) @map("fecha_entrega")
+  observaciones String?
+  aprobado      Boolean     @default(false)
+
+  @@map("informes")
+}
