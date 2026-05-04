@@ -1,12 +1,6 @@
 {
-  "projects": {
-    "web": {
-      "root": "apps/web",
-      "framework": "nextjs"
-    }
-  },
   "buildCommand": "cd apps/web && npm run build",
   "installCommand": "npm install",
-  "ignoreCommand": "exit 0",
-  "outputDirectory": "apps/web/.next"
+  "outputDirectory": "apps/web/.next",
+  "framework": "nextjs"
 }
