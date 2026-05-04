@@ -1,0 +1,5 @@
+apps/api
+**/api
+**/prisma
+**/*.test.ts
+**/*.spec.ts
