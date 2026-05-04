@@ -1,5 +1,6 @@
-apps/api
-**/api
-**/prisma
+# Solo ignorar archivos, no carpetas completas
 **/*.test.ts
 **/*.spec.ts
+**/Dockerfile
+**/nest-cli.json
+**/prisma/schema.prisma

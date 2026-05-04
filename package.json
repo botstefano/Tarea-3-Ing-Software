@@ -1,20 +1,7 @@
 {
-  "name": "unt-gestion-practicas-tesis",
+  "name": "tarea-3-monorepo",
   "version": "1.0.0",
-  "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
   "scripts": {
-    "dev": "npm run dev --workspaces --if-present",
-    "build": "npm run build --workspaces --if-present",
-    "start": "npm run start --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present",
-    "lint": "npm run lint --workspaces --if-present"
-  },
-  "devDependencies": {
-    "typescript": "^5.0.0",
-    "turbo": "latest"
+    "build": "cd apps/web && npm run build"
   }
 }
